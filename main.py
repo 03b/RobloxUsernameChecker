@@ -43,7 +43,6 @@ def main():
 if __name__ == '__main__':
   main()
   while True:
-    time.sleep(60)
     if threading.active_count() == 1:
       end = time.time()
       print(
