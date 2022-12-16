@@ -8,12 +8,15 @@ import ssl
 import threading
 import random
 import itertools
-import string
 
+
+timeout = False
 usernames = open("usernames.txt").read().splitlines()
 
 def check(username):
   try:
+    while timeout == True:
+        time.sleep(0.5)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ssl_sock = ssl.wrap_socket(s)
     ssl_sock.connect(('auth.roblox.com', 443))
@@ -22,21 +25,22 @@ def check(username):
       + username.encode() +
       b' HTTP/1.1\r\nHost: auth.roblox.com\r\nConnection: close\r\n\r\n')
     data = ssl_sock.recv(1024)
+    ssl_sock.close()
+  #  print(data)
     if b'valid' in data:
       print(f"\033[32m{username} is available.\033[0m")
       open("out.txt", "a").write(f"\n{username}")
+      return
     else:
       print(f"\033[31m{username} is not available.\033[0m")
-    ssl_sock.close()
   except Exception as e:
     check(username)
-    print(e)
+    timeoutstart()
 
 
 def main():
   for username in usernames:
-    while threading.active_count() > 75:
-      time.sleep(1)
+    time.sleep(0.01)
     threading.Thread(target=check, args=(username, )).start()
 
 
@@ -48,4 +52,5 @@ if __name__ == '__main__':
       print(
         f" checked {str (len (usernames ) )} usernames in { str( end - start )[ :4 ]} seconds. "
       )
-      exit()
+      
+      main()
